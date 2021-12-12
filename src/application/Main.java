@@ -1,10 +1,14 @@
 package application;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -54,7 +58,12 @@ public class Main extends Application {
 			label.setFont(Font.font("Lucida Grande", FontPosture.REGULAR, 30));
 			label.setPadding(new Insets(20, 0, 10, 10));
 
-			group.getChildren().addAll(label, vbox);
+			Button button = new Button("Export CSV");
+			button.setLayoutX(575);
+			button.setLayoutY(25);
+			button.setOnAction(event -> exportToCSV(products));
+
+			group.getChildren().addAll(label, vbox, button);
 
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Java FX Bookstore system");
@@ -63,6 +72,25 @@ public class Main extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void exportToCSV(ObservableList<Product> products) {
+		PrintStream ps = null;
+		try {
+			ps = new PrintStream("product.csv");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		ps.println("Name, Description, Value, ISBN");
+
+		for (Product product : products) {
+			ps.println(String.format("%s, %s, %s, %s", 
+					product.getName(), 
+					product.getDescription(), 
+					product.getValue(),
+					product.getIsbn()));
+		}
+		ps.close();
 	}
 
 	public static void main(String[] args) {
