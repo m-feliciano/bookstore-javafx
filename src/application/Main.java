@@ -3,6 +3,7 @@ package application;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
+import dao.ProductDAO;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -17,7 +18,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
-import repositories.ProductRepository;
 import src.io.demo.bookstore.intefaces.Product;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -29,7 +29,7 @@ public class Main extends Application {
 			Group group = new Group();
 			Scene scene = new Scene(group, 690, 510);
 
-			ObservableList<Product> products = new ProductRepository().list();
+			ObservableList<Product> products = new ProductDAO().list();
 
 			TableView tableView = new TableView<>(products);
 

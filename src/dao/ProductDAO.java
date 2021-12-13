@@ -1,4 +1,4 @@
-package repositories;
+package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,24 +12,10 @@ import src.io.demo.bookstore.entities.PrintedBook;
 import src.io.demo.bookstore.intefaces.Product;
 import util.ConnectionFactory;
 
-public class ProductRepository {
+public class ProductDAO {
 
 	public ObservableList<Product> list() {
-//		Author author = new Author("Rodrigo Turini","rodrigo.turini@caelum.com.br","123.456.789.10");
-//		Author author2 = new Author();
-//		author2.setName("Paulo Silveira");
-//		author2.setEmail("paulo.silveira@caelum.com.br");
-//		author2.setCpf("123.456.789.10");
-//		
-//		Book book = new PrintedBook("Java 8 Prático","Novos recursos da linguagem",
-//				59.90,"978-85-66250-46-6", author);
-//		Book book2 = new PrintedBook("Desbravando a O.O.", "Book de Java e O.O",
-//				59.90,"321-54-67890-11-2", author);		
-//		Book book3 = new PrintedBook("Lógica de Programação", 
-//				"Crie seus primeiros programas", 59.90, "978-85-66250-22-0", author2);
 
-//		return FXCollections.observableArrayList(book, book2, book3);
-		
 		ObservableList<Product> products = observableArrayList();
 		Connection conn = new ConnectionFactory().getConnection();
 		String sql = "select * from tb_products";
@@ -61,6 +47,29 @@ public class ProductRepository {
 
 	private ObservableList<Product> observableArrayList() {
 		return FXCollections.observableArrayList();
+	}
+
+	public void addProduct(Product product) {
+		PreparedStatement ps = null;
+		try (Connection conn = new ConnectionFactory().getConnection()) {
+
+			ps = conn.prepareStatement("insert into products (name," 
+					+ " description, value, isbn) values (?,?,?,?)");
+			ps.setString(1, product.getName());
+			ps.setString(2, product.getDescription());
+			ps.setDouble(3, product.getValue());
+			ps.setString(4, product.getIsbn());
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				ps.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 }
