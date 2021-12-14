@@ -1,7 +1,6 @@
 package application;
 
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.IOException;
 
 import dao.ProductDAO;
 import javafx.application.Application;
@@ -19,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 import src.io.demo.bookstore.intefaces.Product;
+import src.io.demo.bookstore.services.Exporter;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Main extends Application {
@@ -61,36 +61,42 @@ public class Main extends Application {
 			Button button = new Button("Export CSV");
 			button.setLayoutX(575);
 			button.setLayoutY(25);
-			button.setOnAction(event -> exportToCSV(products));
+
+			button.setOnAction(event -> {
+				new Thread(() -> {
+					try {
+						sleepFor(10000);
+						exportToCSV(products);
+					} catch (Exception e) {
+						System.out.println("oops, there was an error\r\n" + e);
+					}
+				}).start();
+			});
 
 			group.getChildren().addAll(label, vbox, button);
 
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Java FX Bookstore system");
 			primaryStage.show();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void exportToCSV(ObservableList<Product> products) {
-		PrintStream ps = null;
 		try {
-			ps = new PrintStream("product.csv");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			new Exporter().toCSV(products);
+		} catch (IOException e) {
+			System.out.println("Error: " + e);
 		}
-		ps.println("Name, Description, Value, ISBN");
+	}
 
-		for (Product product : products) {
-			ps.println(String.format("%s, %s, %s, %s", 
-					product.getName(), 
-					product.getDescription(), 
-					product.getValue(),
-					product.getIsbn()));
+	private void sleepFor(int miliseconds) {
+		try {
+			Thread.sleep(miliseconds);
+		} catch (InterruptedException e) {
+			System.out.println("oops, there was an error\\r\\n: " + e);
 		}
-		ps.close();
 	}
 
 	public static void main(String[] args) {
