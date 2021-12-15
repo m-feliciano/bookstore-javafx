@@ -5,6 +5,7 @@ import java.io.IOException;
 import dao.ProductDAO;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -62,18 +63,28 @@ public class Main extends Application {
 			button.setLayoutX(575);
 			button.setLayoutY(25);
 
+			Label progress = new Label();
+			progress.setLayoutX(485);
+			progress.setLayoutY(30);
+
 			button.setOnAction(event -> {
-				new Thread(() -> {
-					try {
+
+				Task<Void> task = new Task<Void>() {
+					@Override
+					protected Void call() throws Exception {
 						sleepFor(10000);
 						exportToCSV(products);
-					} catch (Exception e) {
-						System.out.println("oops, there was an error\r\n" + e);
+						return null;
 					}
-				}).start();
+				};
+				task.setOnRunning(e -> progress.setText("exporting..."));
+
+				task.setOnSucceeded(e -> progress.setText("sucess!"));
+
+				new Thread(task).start();
 			});
 
-			group.getChildren().addAll(label, vbox, button);
+			group.getChildren().addAll(label, vbox, button, progress);
 
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Java FX Bookstore system");
